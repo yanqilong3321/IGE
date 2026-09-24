@@ -32,12 +32,6 @@ mkdir -p data/amazon
 cp /tmp/DCCF/data/amazon/{train,valid,test}.pkl data/amazon/
 ```
 
-Verify the downloaded files:
-
-```bash
-(cd data/amazon && sha256sum -c SHA256SUMS)
-```
-
 Before evaluation, the code applies the following processing steps in `src/protocol.py`:
 
 1. Load the three pickled matrices as CSR matrices and convert all nonzero values to implicit-feedback value 1.
