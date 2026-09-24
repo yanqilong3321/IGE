@@ -1,0 +1,28 @@
+dataset: amazon
+split_seed: 20260915
+support_size: 5
+ranking: full_catalog
+metrics:
+  - ndcg@20
+  - recall@20
+backbones:
+  dccf:
+    embedding_dim: 32
+    layers: 2
+    intents: 128
+  bigcf:
+    embedding_dim: 32
+    layers: 2
+    intents: 64
+  lightgcn:
+    embedding_dim: 32
+    layers: 2
+  lightgcn_nt_ssm:
+    embedding_dim: 32
+    layers: 2
+prototype_adapter:
+  method: kmeans
+  clusters: 64
+  n_init: 10
+  max_iter: 100
+  random_state: 911

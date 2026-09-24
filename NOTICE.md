@@ -1,0 +1,1 @@
+This release contains minimal model source files adapted from the public DCCF, BIGCF, and NT-SSM repositories. The upstream files are kept under `src/upstream/`; consult their original repositories and licenses before redistribution or further modification.

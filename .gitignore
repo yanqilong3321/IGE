@@ -1,0 +1,12 @@
+__pycache__/
+*.py[cod]
+.venv/
+runs/
+outputs/
+checkpoints/
+*.log
+*.jsonl
+*.npz
+*.pt
+*.pth
+*.tmp
