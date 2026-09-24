@@ -42,22 +42,21 @@ Before evaluation, the code applies the following processing steps in `src/proto
 
 The main metrics are NDCG@20 and Recall@20. `valid.pkl` is retained for compatibility with the public split; this release protocol uses `train.pkl` and `test.pkl`.
 
-### Other datasets
+### Gowalla
 
-The paper also reports experiments on Gowalla. Its public preprocessed files, together
-with the Tmall and Yelp files used by the upstream baselines, are available in the
-[DCCF repository](https://github.com/HKUDS/DCCF):
+The paper also reports experiments on Gowalla. Its public preprocessed files are
+available in the [DCCF repository](https://github.com/HKUDS/DCCF):
 
 ```bash
 git clone --depth 1 https://github.com/HKUDS/DCCF.git /tmp/DCCF
-ls /tmp/DCCF/data/{gowalla,tmall,yelp}
+ls /tmp/DCCF/data/gowalla
 ```
 
 The current GitHub release intentionally includes only Amazon-Book, and the released
-`src/protocol.py` accepts only `--dataset amazon`. To run another dataset, copy its
-`train.pkl` and `test.pkl` files into a matching `data/<dataset>/` directory and extend
-the dataset choice and preprocessing path in `src/protocol.py` consistently with the
-Amazon-Book protocol above.
+`src/protocol.py` accepts only `--dataset amazon`. To run Gowalla, copy its `train.pkl`
+and `test.pkl` files into `data/gowalla/`, add `gowalla` to the dataset choice, and
+apply the same CSR conversion, user split, support sampling, and full-catalog ranking
+steps described above.
 
 ## Code layout
 
