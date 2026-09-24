@@ -42,6 +42,23 @@ Before evaluation, the code applies the following processing steps in `src/proto
 
 The main metrics are NDCG@20 and Recall@20. `valid.pkl` is retained for compatibility with the public split; this release protocol uses `train.pkl` and `test.pkl`.
 
+### Other datasets
+
+The paper also reports experiments on Gowalla. Its public preprocessed files, together
+with the Tmall and Yelp files used by the upstream baselines, are available in the
+[DCCF repository](https://github.com/HKUDS/DCCF):
+
+```bash
+git clone --depth 1 https://github.com/HKUDS/DCCF.git /tmp/DCCF
+ls /tmp/DCCF/data/{gowalla,tmall,yelp}
+```
+
+The current GitHub release intentionally includes only Amazon-Book, and the released
+`src/protocol.py` accepts only `--dataset amazon`. To run another dataset, copy its
+`train.pkl` and `test.pkl` files into a matching `data/<dataset>/` directory and extend
+the dataset choice and preprocessing path in `src/protocol.py` consistently with the
+Amazon-Book protocol above.
+
 ## Code layout
 
 `src/train_eval.py` trains DCCF or BIGCF on warm users. `src/train_light_baseline.py` trains LightGCN, and `src/train_nt_baseline.py` trains the NT-SSM LightGCN variant. `src/prototype_adapter.py` constructs the offline K-means prototype interface for LightGCN-based encoders. `src/formal_eval.py` implements the shared cold-user scoring and evaluation code.
