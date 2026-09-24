@@ -133,4 +133,4 @@ average the three seed values for the paper's main table.
 
 ## Acknowledgements
 
-We thank the authors of DCCF, BIGCF, LightGCN, and NT-SSM for making their implementations publicly available. We also thank the DCCF authors for providing the preprocessed Amazon-Book and Gowalla datasets.
+We thank the authors of [DCCF](https://github.com/HKUDS/DCCF), [BIGCF](https://github.com/BlueGhostYi/BIGCF), [LightGCN](https://github.com/gusye1234/LightGCN-PyTorch), and [NT-SSM](https://github.com/geon0325/NT-SSM) for making their implementations publicly available. We also thank the DCCF authors for providing the preprocessed Amazon-Book and Gowalla datasets.
