@@ -130,3 +130,7 @@ python src/prototype_adapter.py --model lightgcn_nt_ssm --dataset amazon --seed 
 The three training/evaluation blocks produce one `result.json` per seed. The principal
 numbers are under `metrics` in those files. The `runs/` directory is ignored by Git;
 average the three seed values for the paper's main table.
+
+## Acknowledgements
+
+We thank the authors of DCCF, BIGCF, LightGCN, and NT-SSM for making their implementations publicly available. We also thank the DCCF authors for providing the preprocessed Amazon-Book and Gowalla datasets.
