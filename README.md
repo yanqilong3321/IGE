@@ -1,75 +1,52 @@
-# Evidence-Aware Gating: Amazon-Book Main Experiment
+# When to Trust Intent Graphs? Evidence-Aware Gating for Cold-User Recommendation
 
-This directory is the clean release package for the paper's **main Amazon-Book experiment**. It contains only the training, prototype-adaptation, and cold-user evaluation code for the four reported backbone configurations:
-
-- DCCF
-- BIGCF
-- LightGCN
-- LightGCN + NT-SSM
-
-Historical logs, result snapshots, ablation scripts, signal diagnostics, tuning experiments, audit reports, and other datasets are intentionally excluded.
+This repository is the official code implementation for **When to Trust Intent Graphs? Evidence-Aware Gating for Cold-User Recommendation**. It provides the Amazon-Book main experiment for DCCF, BIGCF, LightGCN, and LightGCN + NT-SSM.
 
 ## Environment
 
-The reference environment is Python 3.10+, PyTorch 2.5.1 with CUDA 12.1, SciPy, NumPy, scikit-learn, and `torch-sparse`. A CUDA GPU is required by the released training/evaluation scripts.
+Create an environment and install the dependencies listed in [`requirements.txt`](requirements.txt):
 
 ```bash
 python3.10 -m venv .venv
 source .venv/bin/activate
-python -m pip install --upgrade pip
-
-# Install the PyTorch build matching the CUDA driver. This is the reference build:
-pip install torch==2.5.1 --index-url https://download.pytorch.org/whl/cu121
 pip install -r requirements.txt
 ```
 
-If the pre-built `torch-sparse` wheel is unavailable for the selected PyTorch/CUDA
-combination, install the matching wheel first and then install the remaining packages:
+For a CUDA-enabled PyTorch installation, install the PyTorch build matching the local CUDA driver before running the command above. The reference environment uses PyTorch 2.5.1 with CUDA 12.1.
 
-```bash
-pip install torch-sparse -f https://data.pyg.org/whl/torch-2.5.0+cu121.html
-pip install 'numpy>=1.24' 'scipy>=1.10' 'scikit-learn>=1.3'
+## Dataset
+
+The demonstration dataset is **Amazon-Book**. The repository already contains the processed files under `data/amazon/`:
+
+```text
+data/amazon/train.pkl
+data/amazon/valid.pkl
+data/amazon/test.pkl
 ```
 
-Check the installation before launching a long run:
+Each file is a SciPy CSR user-item interaction matrix with the same shape. The files are the public preprocessed Amazon-Book split released with [DCCF](https://github.com/HKUDS/DCCF). If the files are not downloaded with the repository, obtain them with:
 
 ```bash
-python - <<'PY'
-import torch, scipy, sklearn
-print('torch', torch.__version__, 'cuda available:', torch.cuda.is_available())
-print('scipy', scipy.__version__, 'sklearn', sklearn.__version__)
-assert torch.cuda.is_available(), 'A CUDA GPU is required for this release'
-PY
+git clone --depth 1 https://github.com/HKUDS/DCCF.git /tmp/DCCF
+mkdir -p data/amazon
+cp /tmp/DCCF/data/amazon/{train,valid,test}.pkl data/amazon/
 ```
 
-Set `CUDA_VISIBLE_DEVICES` when selecting a GPU, for example
-`export CUDA_VISIBLE_DEVICES=0`.
-
-## Dataset and protocol
-
-The included `data/amazon/` files are the Amazon-Book interaction matrices used by the paper. The evaluator uses the shared support-only protocol:
-
-- warm-user backbone training;
-- frozen item embeddings at cold-user inference;
-- support size `k=5` for the main table;
-- full-catalog ranking with support items masked;
-- fit/tune selection before test evaluation;
-- split seed `20260915`.
-
-The data files are public interaction matrices. Their checksums are recorded in `data/amazon/SHA256SUMS`.
-
-The data are included in this repository so that the commands below work immediately.
-If a mirror is preferred, replace the three files under `data/amazon/` with files having
-the same names and verify them before running:
+Verify the downloaded files:
 
 ```bash
-cd data/amazon
-sha256sum -c SHA256SUMS
-cd ../..
+(cd data/amazon && sha256sum -c SHA256SUMS)
 ```
 
-The expected files are `train.pkl`, `valid.pkl`, and `test.pkl`; the released evaluator
-uses `train.pkl` and `test.pkl`, while `valid.pkl` is retained for provenance.
+Before evaluation, the code applies the following processing steps in `src/protocol.py`:
+
+1. Load the three pickled matrices as CSR matrices and convert all nonzero values to implicit-feedback value 1.
+2. Use `train.pkl` as the support-interaction source and `test.pkl` as the query-interaction source; assert that the two matrices do not overlap.
+3. Randomly partition users with interactions in both matrices using split seed `20260915`: 20% test cold users and 10% calibration users, with the calibration users divided equally into fit and tune groups.
+4. Remove fit, tune, and test users from warm-user graph training.
+5. At evaluation, sample `k=5` support interactions per cold user, mask those support items from ranking, and rank the complete item catalog.
+
+The main metrics are NDCG@20 and Recall@20. `valid.pkl` is retained for compatibility with the public split; this release protocol uses `train.pkl` and `test.pkl`.
 
 ## Code layout
 
@@ -141,21 +118,5 @@ python src/prototype_adapter.py --model lightgcn_nt_ssm --dataset amazon --seed 
 ```
 
 The three training/evaluation blocks produce one `result.json` per seed. The principal
-numbers are under `metrics` in those files. The `runs/` directory is ignored by Git and
-is not part of this release. The repository intentionally does not include a result
-aggregation script or historical logs; average the three seed values for the paper table.
-
-For a short smoke run before a full training job, use one epoch and a small sample count:
-
-```bash
-python src/train_eval.py --model dccf --dataset amazon --name smoke --out runs/smoke \
-  --epochs 1 --batch 256 --n_batches 1 --seed 0 --train_only
-```
-
-## Reproducibility note
-
-The reported DCCF/BIGCF numbers are cold-user adaptations of frozen warm-user encoders, not native cold-start results reported by the original backbone papers. The benchmark split was explored during method development; it should be described as development/reproducibility evidence rather than an untouched confirmatory test.
-
-## Upstream code
-
-The minimal upstream model files are retained under `src/upstream/` with their original model names. Please consult the corresponding upstream repositories for their licenses and full training implementations before redistributing modified versions.
+numbers are under `metrics` in those files. The `runs/` directory is ignored by Git;
+average the three seed values for the paper's main table.
